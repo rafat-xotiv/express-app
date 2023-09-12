@@ -1,9 +1,10 @@
-import express, { Request, Response, Router } from "express";
+import { Request, Response } from "express";
 import { sequelize } from "../connection";
 import User from "../models/user";
+import { handleResponse } from "../responseHandler";
 
 const getUser = (req: Request, res: Response) => {
-	res.json("Hello World");
+	handleResponse(res, "Hello World");
 };
 
 const createUser = async (req: Request, res: Response) => {
@@ -14,13 +15,13 @@ const createUser = async (req: Request, res: Response) => {
 		const user = await User.create({ name, email }, { transaction });
 		await transaction.commit();
 
-		res.status(201).json(user);
+		handleResponse(res, user, 201);
 	} catch (error) {
 		if (transaction) {
 			await transaction.rollback();
 		}
 		console.error(error);
-		res.status(500).json({ error: "Internal server error" });
+		handleResponse(res, { error: "Internal server error" }, 500);
 	}
 };
 
